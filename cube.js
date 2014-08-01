@@ -1,16 +1,3 @@
-var PI = Math.PI;
-var STICKER_SIZE = .85;
-var ROTATION_FRAMES = 8;
-
-var COLORS = {
-    "white": {index: 0, value: 0xffffff, rotation: [0, PI/2, 0], adjustment: {x: -.5, y: 0, z: 0}},
-    "yellow": {index: 1, value: 0xffff00, rotation: [0, PI/2, 0], adjustment: {x: .5, y: 0, z: 0}},
-    "green": {index: 2, value: 0x00ff00, rotation: [PI/2, 0, 0], adjustment: {x: 0, y: -.5, z: 0}},
-    "blue": {index: 3, value: 0x0000ff, rotation: [PI/2, 0, 0], adjustment: {x: 0, y: .5, z: 0}},
-    "orange": {index: 4, value: 0xff8c00, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: -.5}},
-    "red": {index: 5, value: 0xff0000, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: .5}},
-}
-
 var cube = {
     cubies: null,
     stickers: [],
@@ -21,13 +8,13 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 2;
+        var n = 3;
         this.dim = n;
         this.scene = scene;
 
         function makeStickers (x, y, z) {
 
-            var stickers = new Array(6);
+            var stickers = [];
 
             function newSticker (color) {
                 var colorValue = COLORS[color].value;
@@ -39,13 +26,10 @@ var cube = {
                 sticker.rotation.x = COLORS[color].rotation[0];
                 sticker.rotation.y = COLORS[color].rotation[1];
                 sticker.rotation.z = COLORS[color].rotation[2];
-                stickers[COLORS[color].index] = sticker;
+                stickers.push(sticker);
                 scene.add(sticker);
                 cube.stickers.push(sticker);
 
-            }
-            for (var i = 0; i < 6; ++i) {
-                stickers[i] = null;
             }
 
             if (x == 0) {
@@ -123,25 +107,69 @@ var cube = {
         this.rightFace = this.yellowFace;
     },
 
-    rotate: function (animationEvent) {
-        var direction = animationEvent.direction;
-        var axis = animationEvent.axis;
-        var frame = animationEvent.frame;
-        var angle = direction * (PI/2) / ROTATION_FRAMES;
-        var d1 = animationEvent.d1;
-        var d2 = animationEvent.d2;
-        for (var i = 0; i < this.stickers.length; ++i) {
-            var sticker = this.stickers[i];
-            var coord1 = sticker.position[d1];
-            var coord2 = sticker.position[d2];
-            sticker.position[d1] = coord1 * Math.cos(angle) - coord2 * Math.sin(angle); 
-            sticker.position[d2] = coord1 * Math.sin(angle) + coord2 * Math.cos(angle);
+    // rotate: function (animationEvent) {
+    //     var direction = animationEvent.direction;
+    //     var axis = animationEvent.axis;
+    //     var frame = animationEvent.frame;
+    //     var angle = direction * (PI/2) / ROTATION_FRAMES;
+    //     var d1 = animationEvent.d1;
+    //     var d2 = animationEvent.d2;
+    //     for (var i = 0; i < this.stickers.length; ++i) {
+    //         var sticker = this.stickers[i];
+    //         var coord1 = sticker.position[d1];
+    //         var coord2 = sticker.position[d2];
+    //         sticker.position[d1] = coord1 * Math.cos(angle) - coord2 * Math.sin(angle);
+    //         sticker.position[d2] = coord1 * Math.sin(angle) + coord2 * Math.cos(angle);
 
-            rotationMatrix = new THREE.Matrix4();
-            rotationMatrix.makeRotationAxis(axis.normalize(), -angle);
-            rotationMatrix.multiply(sticker.matrix);
-            sticker.matrix = rotationMatrix;
-            sticker.rotation.setFromRotationMatrix(sticker.matrix);
+    //         rotationMatrix = new THREE.Matrix4();
+    //         rotationMatrix.makeRotationAxis(axis.normalize(), -angle);
+    //         rotationMatrix.multiply(sticker.matrix);
+    //         sticker.matrix = rotationMatrix;
+    //         sticker.rotation.setFromRotationMatrix(sticker.matrix);
+    //     }
+    // }
+    rotate: function (animationEvent) {
+        var axis = animationEvent.turn.axis;
+        var direction = animationEvent.turn.direction;
+        var depth = animationEvent.depth;
+        var xMin = 0, xMax = cube.dim;
+        var yMin = 0, yMax = cube.dim;
+        var zMin = 0, zMax = cube.dim;
+        var d1, d2;
+        if (axis.x) {
+            d1 = 'z';
+            d2 = 'y';
+        } else if (axis.y) {
+            d1 = 'x';
+            d2 = 'z';
+        }
+        else {
+            d1 = 'x';
+            d2 = 'y';
+        }
+        var angle = direction * (PI/2) / ROTATION_FRAMES;
+        for (var x = xMin; x < xMax; ++x) {
+            for (var y = yMin; y < yMax; ++y) {
+                for (var z = zMin; z < zMax; ++z) {
+                    var cubie = cube.cubies[x][y][z];
+                    if (cubie === null) {
+                        continue;
+                    }
+                    for (var i = 0; i < cubie.length; ++i) {
+                        var sticker = cubie[i];
+                        var coord1 = sticker.position[d1];
+                        var coord2 = sticker.position[d2];
+                        sticker.position[d1] = coord1 * Math.cos(angle) - coord2 * Math.sin(angle);
+                        sticker.position[d2] = coord1 * Math.sin(angle) + coord2 * Math.cos(angle);
+
+                        rotationMatrix = new THREE.Matrix4();
+                        rotationMatrix.makeRotationAxis(axis.normalize(), -angle);
+                        rotationMatrix.multiply(sticker.matrix);
+                        sticker.matrix = rotationMatrix;
+                        sticker.rotation.setFromRotationMatrix(sticker.matrix);
+                    }
+                }
+            }
         }
     }
 };
@@ -163,59 +191,27 @@ var view = {
 
 };
 
-window.onkeydown = function(event) {
-    console.log(event.keyCode);
+window.onkeydown = function (event) {
     switch (event.keyCode) {
-        case 84: // t
-        case 89: // y
-            cube.animationQueue.push({axis: new THREE.Vector3(1,0,0), direction: 1, frame: 1, d1: "z", d2: "y"});
-            var temp = cube.faces.front;
-            cube.faces.front = cube.faces.down;
-            cube.faces.down = cube.faces.back;
-            cube.faces.back = cube.faces.up;
-            cube.faces.up = temp;
+        case charCodes.T:
+        case charCodes.Y:
+            cube.animationQueue.push({turn: TURNS.LEFT, frame: 1, depth: cube.dim});
             break;
-        case 80: // p
-            cube.animationQueue.push({axis: new THREE.Vector3(0,0,-1), direction: -1, frame: 1, d1: "x", d2: "y"});
-            var temp = cube.faces.up;
-            cube.faces.up = cube.faces.left;
-            cube.faces.left = cube.faces.down;
-            cube.faces.down = cube.faces.right;
-            cube.faces.right = temp;
+        case charCodes.P:
+            cube.animationQueue.push({turn: TURNS.FRONT, frame: 1, depth: cube.dim});
             break;
-        case 81: // q
-            cube.animationQueue.push({axis: new THREE.Vector3(0,0,-1), direction: 1, frame: 1, d1: "x", d2: "y"});
-            var temp = cube.faces.up;
-            cube.faces.up = cube.faces.right;
-            cube.faces.right = cube.faces.down;
-            cube.faces.down = cube.faces.left;
-            cube.faces.left = temp;
+        case charCodes.Q:
+            cube.animationQueue.push({turn: TURNS.BACK, frame: 1, depth: cube.dim});
             break;
-        case 66: // b
-        case 78: // n
-            cube.animationQueue.push({axis: new THREE.Vector3(1,0,0), direction: -1, frame: 1, d1: "z", d2: "y"});
-            var temp = cube.faces.front;
-            cube.faces.front = cube.faces.top;
-            cube.faces.top = cube.faces.back;
-            cube.faces.back = cube.faces.down;
-            cube.faces.front = temp;
-            console.log(cube.faces.front);
+        case charCodes.B:
+        case charCodes.N:
+            cube.animationQueue.push({turn: TURNS.RIGHT, frame: 1, depth: cube.dim});
             break;
-        case 65:  // a
-            cube.animationQueue.push({axis: new THREE.Vector3(0,1,0), direction: -1, frame: 1, d1: "x", d2: "z"});
-            var temp = cube.faces.front;
-            cube.faces.front = cube.faces.left;
-            cube.faces.left = cube.faces.back;
-            cube.faces.back = cube.faces.right;
-            cube.faces.right = temp;
+        case charCodes.A:
+            cube.animationQueue.push({turn: TURNS.UP, frame: 1, depth: cube.dim});
             break;
-        case 59:  // ;
-            cube.animationQueue.push({axis: new THREE.Vector3(0,1,0), direction: 1, frame: 1, d1: "x", d2: "z"});
-            var temp = cube.faces.front;
-            cube.faces.front = cube.faces.right;
-            cube.faces.right = cube.faces.back;
-            cube.faces.back = cube.faces.left;
-            cube.faces.left = temp;
+        case charCodes.SEMI:
+            cube.animationQueue.push({turn: TURNS.DOWN, frame: 1, depth: cube.dim});
             break;
     }
 }
@@ -226,8 +222,8 @@ window.onload = function () {
     renderer.setSize(.95*window.innerWidth, .95*window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    var render = function () { 
-        renderer.render(scene, view.camera); 
+    var render = function () {
+        renderer.render(scene, view.camera);
         requestAnimationFrame(render);
         var rotatingObjects = [cube, view];
         for (var i in rotatingObjects) {
@@ -247,7 +243,7 @@ window.onload = function () {
 
             }
         }
-    } 
+    }
     cube.init(scene);
     view.init(scene);
     render();
