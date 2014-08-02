@@ -8,7 +8,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 5;
+        var n = 3;
         this.dim = n;
         this.scene = scene;
 
@@ -26,6 +26,7 @@ var cube = {
                 sticker.rotation.x = COLORS[color].rotation[0];
                 sticker.rotation.y = COLORS[color].rotation[1];
                 sticker.rotation.z = COLORS[color].rotation[2];
+                sticker.name = color;
                 stickers.push(sticker);
                 scene.add(sticker);
                 cube.stickers.push(sticker);
@@ -152,7 +153,6 @@ var cube = {
                 xMax = cube.dim;
             }
         } else if (axis.y) {
-            console.log('here');
             d1 = 'x';
             d2 = 'z';
             if (turn == TURNS.DOWN) {
@@ -198,12 +198,28 @@ var cube = {
                             movedStickers.push(sticker);
                         }
                     }
+                    if (frame == ROTATION_FRAMES) {
+                        cube.cubies[x][y][z] = [];
+                    }
                 }
             }
         }
         if (frame == ROTATION_FRAMES) {
             for (var i = 0; i < movedStickers.length; ++i) {
-                // console.log(movedStickers[i]);
+                function getCoord (coord) {
+                    if (coord <= 0) {
+                        return 0;
+                    } else if (coord >= 2) {
+                        return 2;
+                    } else {
+                        return Math.round(coord);
+                    }
+                }
+                var x = getCoord(movedStickers[i].position.x + (cube.dim - 1)/2);
+                var y = getCoord(movedStickers[i].position.y + (cube.dim - 1)/2);
+                var z = getCoord(movedStickers[i].position.z + (cube.dim - 1)/2);
+                console.log([x,y,z,movedStickers[i].name]);
+                cube.cubies[x][y][z].push(movedStickers[i]);
             }
         }
     }
