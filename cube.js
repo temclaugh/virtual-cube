@@ -8,7 +8,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 3;
+        var n = 5;
         this.dim = n;
         this.scene = scene;
 
@@ -129,7 +129,6 @@ var cube = {
     //     }
     // }
     rotate: function (animationEvent) {
-        console.log(animationEvent.frame);
         var turn = animationEvent.turn;
         var axis = turn;
         var direction = animationEvent.direction;
@@ -146,30 +145,34 @@ var cube = {
             d1 = 'z';
             d2 = 'y';
             if (turn == TURNS.LEFT) {
-                console.log("here");
                 xMin = 0;
                 xMax = depth;
             } else {
-                console.log("here");
                 xMin = cube.dim - depth;
                 xMax = cube.dim;
             }
         } else if (axis.y) {
+            console.log('here');
             d1 = 'x';
             d2 = 'z';
             if (turn == TURNS.DOWN) {
                 yMin = 0;
                 yMax = depth;
             } else {
-                console.log("iwaeh");
                 yMin = cube.dim - depth;
                 yMax = cube.dim; 
             }
-
         }
         else {
             d1 = 'x';
             d2 = 'y';
+            if (turn == TURNS.BACK) {
+                zMin = 0;
+                zMax = depth;
+            } else {
+                zMin = cube.dim - depth;
+                zMax = cube.dim; 
+            }
         }
         var angle = direction * (PI/2) / ROTATION_FRAMES;
         for (var x = xMin; x < xMax; ++x) {
@@ -228,22 +231,31 @@ window.onkeydown = function (event) {
     switch (event.keyCode) {
         case charCodes.T:
         case charCodes.Y:
-            cube.animationQueue.push({turn: TURNS.LEFT, frame: 1, depth: cube.dim, direction: 1});
+            turn = TURNS.LEFT;
+            frame = 1;
+            depth = cube.dim;
+            direction = 1;
             break;
         case charCodes.P:
-            cube.animationQueue.push({turn: TURNS.FRONT, frame: 1, depth: cube.dim});
+            turn = TURNS.FRONT;
+            depth = cube.dim;
+            direction = -1;
             break;
         case charCodes.Q:
-            cube.animationQueue.push({turn: TURNS.BACK, frame: 1, depth: cube.dim});
+            turn = TURNS.BACK;
+            depth = cube.dim;
+            direction = 1;
             break;
         case charCodes.B:
         case charCodes.N:
-            cube.animationQueue.push({turn: TURNS.RIGHT, frame: 1, depth: cube.dim});
+            turn = TURNS.RIGHT;
+            depth = cube.dim;
+            direction = -1;
             break;
         case charCodes.A:
             turn = TURNS.UP;
             depth = cube.dim;
-            diection = -1;
+            direction = -1;
             break;
         case charCodes.SEMI:
         case charCodes.SEMI_2:
@@ -268,6 +280,46 @@ window.onkeydown = function (event) {
             break;
         case charCodes.K:
             turn = TURNS.RIGHT;
+            depth = 1;
+            direction = -1;
+            break;
+        case charCodes.J:
+            turn = TURNS.UP;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.F:
+            turn = TURNS.UP;
+            depth = 1;
+            direction = -1;
+            break;
+        case charCodes.G:
+            turn = TURNS.FRONT;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.H:
+            turn = TURNS.FRONT;
+            depth = 1;
+            direction = -1;
+            break;
+        case charCodes.S:
+            turn = TURNS.DOWN;
+            depth = 1;
+            direction = -1;
+            break;
+        case charCodes.L:
+            turn = TURNS.DOWN;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.W:
+            turn = TURNS.BACK;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.O:
+            turn = TURNS.BACK;
             depth = 1;
             direction = -1;
             break;
