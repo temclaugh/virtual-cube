@@ -12,12 +12,12 @@ var COLORS = {
 }
 
 TURNS = {
-    UP: {axis: new THREE.Vector3(0, 1, 0), direction: -1},
-    DOWN: {axis: new THREE.Vector3(0, 1, 0), direction: 1},
-    LEFT: {axis: new THREE.Vector3(1, 0, 0), direction: 1},
-    RIGHT: {axis: new THREE.Vector3(1, 0, 0), direction: -1},
-    BACK: {axis: new THREE.Vector3(0, 0, -1), direction: 1},
-    FRONT: {axis: new THREE.Vector3(0, 0, -1), direction: -1},
+    UP: new THREE.Vector3(0, 1, 0),
+    DOWN: new THREE.Vector3(0, 1, 0),
+    LEFT: new THREE.Vector3(1, 0, 0),
+    RIGHT: new THREE.Vector3(1, 0, 0),
+    BACK: new THREE.Vector3(0, 0, -1),
+    FRONT: new THREE.Vector3(0, 0, -1),
 }
 
 charCodes = {
@@ -41,4 +41,5 @@ charCodes = {
     N: 78,
     A: 65,
     SEMI: 59,
+    SEMI_2: 186,
 }

@@ -129,19 +129,43 @@ var cube = {
     //     }
     // }
     rotate: function (animationEvent) {
-        var axis = animationEvent.turn.axis;
-        var direction = animationEvent.turn.direction;
+        console.log(animationEvent.frame);
+        var turn = animationEvent.turn;
+        var axis = turn;
+        var direction = animationEvent.direction;
         var depth = animationEvent.depth;
         var xMin = 0, xMax = cube.dim;
         var yMin = 0, yMax = cube.dim;
         var zMin = 0, zMax = cube.dim;
+        var frame = animationEvent.frame;
+        if (frame == ROTATION_FRAMES) {
+            var movedStickers = [];
+        }
         var d1, d2;
         if (axis.x) {
             d1 = 'z';
             d2 = 'y';
+            if (turn == TURNS.LEFT) {
+                console.log("here");
+                xMin = 0;
+                xMax = depth;
+            } else {
+                console.log("here");
+                xMin = cube.dim - depth;
+                xMax = cube.dim;
+            }
         } else if (axis.y) {
             d1 = 'x';
             d2 = 'z';
+            if (turn == TURNS.DOWN) {
+                yMin = 0;
+                yMax = depth;
+            } else {
+                console.log("iwaeh");
+                yMin = cube.dim - depth;
+                yMax = cube.dim; 
+            }
+
         }
         else {
             d1 = 'x';
@@ -167,8 +191,16 @@ var cube = {
                         rotationMatrix.multiply(sticker.matrix);
                         sticker.matrix = rotationMatrix;
                         sticker.rotation.setFromRotationMatrix(sticker.matrix);
+                        if (frame == ROTATION_FRAMES) {
+                            movedStickers.push(sticker);
+                        }
                     }
                 }
+            }
+        }
+        if (frame == ROTATION_FRAMES) {
+            for (var i = 0; i < movedStickers.length; ++i) {
+                // console.log(movedStickers[i]);
             }
         }
     }
@@ -192,10 +224,11 @@ var view = {
 };
 
 window.onkeydown = function (event) {
+    var turn, depth, direction;
     switch (event.keyCode) {
         case charCodes.T:
         case charCodes.Y:
-            cube.animationQueue.push({turn: TURNS.LEFT, frame: 1, depth: cube.dim});
+            cube.animationQueue.push({turn: TURNS.LEFT, frame: 1, depth: cube.dim, direction: 1});
             break;
         case charCodes.P:
             cube.animationQueue.push({turn: TURNS.FRONT, frame: 1, depth: cube.dim});
@@ -208,12 +241,40 @@ window.onkeydown = function (event) {
             cube.animationQueue.push({turn: TURNS.RIGHT, frame: 1, depth: cube.dim});
             break;
         case charCodes.A:
-            cube.animationQueue.push({turn: TURNS.UP, frame: 1, depth: cube.dim});
+            turn = TURNS.UP;
+            depth = cube.dim;
+            diection = -1;
             break;
         case charCodes.SEMI:
-            cube.animationQueue.push({turn: TURNS.DOWN, frame: 1, depth: cube.dim});
+        case charCodes.SEMI_2:
+            turn = TURNS.DOWN;
+            depth = cube.dim;
+            direction = 1;
             break;
+        case charCodes.E:
+            turn = TURNS.LEFT;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.D:
+            turn = TURNS.LEFT;
+            depth = 1;
+            direction = -1;
+            break;
+        case charCodes.I:
+            turn = TURNS.RIGHT;
+            depth = 1;
+            direction = 1;
+            break;
+        case charCodes.K:
+            turn = TURNS.RIGHT;
+            depth = 1;
+            direction = -1;
+            break;
+        default:
+            return;
     }
+    cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
 }
 
 window.onload = function () {
