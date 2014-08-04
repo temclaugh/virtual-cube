@@ -1,3 +1,7 @@
+var playing = false;
+var scrambling = false;
+
+
 var PI = Math.PI;
 var STICKER_SIZE = .85;
 var ROTATION_FRAMES = 5;
@@ -40,6 +44,12 @@ charCodes = {
     B: 66,
     N: 78,
     A: 65,
+    U: 85,
+    M: 77,
+    R: 82,
+    V: 86,
     SEMI: 59,
     SEMI_2: 186,
+    SPACE: 32,
 }
+

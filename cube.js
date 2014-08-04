@@ -26,7 +26,6 @@ var cube = {
                 sticker.rotation.x = COLORS[color].rotation[0];
                 sticker.rotation.y = COLORS[color].rotation[1];
                 sticker.rotation.z = COLORS[color].rotation[2];
-                sticker.name = color;
                 stickers.push(sticker);
                 scene.add(sticker);
                 cube.stickers.push(sticker);
@@ -218,31 +217,17 @@ var cube = {
                 var x = getCoord(movedStickers[i].position.x + (cube.dim - 1)/2);
                 var y = getCoord(movedStickers[i].position.y + (cube.dim - 1)/2);
                 var z = getCoord(movedStickers[i].position.z + (cube.dim - 1)/2);
-                console.log([x,y,z,movedStickers[i].name]);
                 cube.cubies[x][y][z].push(movedStickers[i]);
             }
         }
-    }
-};
-
-var view = {
-    rotatingFace: null,
-    animationQueue: [],
-    frame: 0,
-    angle: 0,
-
-    init: function (scene) {
-        this.scene = scene;
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.z = cube.dim * 1.2;
-        this.camera.position.y = cube.dim * 1.2;
-        this.camera.lookAt(this.scene.position);
-
     },
-
 };
 
 window.onkeydown = function (event) {
+    console.log(playing, scrambling);
+    if (scrambling) {
+        return;
+    }
     var turn, depth, direction;
     switch (event.keyCode) {
         case charCodes.T:
@@ -339,8 +324,44 @@ window.onkeydown = function (event) {
             depth = 1;
             direction = -1;
             break;
+        case charCodes.U:
+            turn = TURNS.RIGHT;
+            depth = 2;
+            direction = 1;
+            break;
+        case charCodes.M:
+            turn = TURNS.RIGHT;
+            depth = 2;
+            direction = -1;
+            break;
+        case charCodes.R:
+            turn = TURNS.LEFT;
+            depth = 2;
+            direction = 1;
+            break;
+        case charCodes.V:
+            turn = TURNS.LEFT;
+            depth = 2;
+            direction = -1;
+            break;
+        case charCodes.SPACE:
+            console.log("SCRAMBLING");
+            scrambling = true;
+            for (var i = 0; i < 50; ++i) {
+                turn = [TURNS.UP, TURNS.DOWN, TURNS.LEFT, TURNS.RIGHT, TURNS.BACK, TURNS.FRONT][Math.floor(Math.random() * 6)];
+                console.log(turn);
+                depth = Math.floor(Math.random() * (cube.dim - 1));
+                depth = 1;
+                direction = [-1, 1][Math.floor(Math.random() * 2)];
+                cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
+            }    
+            playing = true;
+            return;
         default:
             return;
+    }
+    if (!playing) {
+        return;
     }
     cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
 }
@@ -349,31 +370,31 @@ window.onload = function () {
     var scene = new THREE.Scene();
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(.95*window.innerWidth, .95*window.innerHeight);
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 3 * 1.2;
+    camera.position.y = 3 * 1.2;
+    camera.lookAt({x: 0, y: 0, z: 0});
     document.body.appendChild(renderer.domElement);
 
     var render = function () {
-        renderer.render(scene, view.camera);
+        renderer.render(scene, camera);
         requestAnimationFrame(render);
-        var rotatingObjects = [cube, view];
-        for (var i in rotatingObjects) {
-            var rotatingObject = rotatingObjects[i];
-            if (rotatingObject.animationQueue.length != 0) {
-                var animationEvent;
-                if (rotatingObject.animationQueue[0].frame == ROTATION_FRAMES) {
-                    animationEvent = rotatingObject.animationQueue.shift();
-                    if (animationEvent == null) {
-                        return;
-                    }
-                } else {
-                    animationEvent = rotatingObject.animationQueue[0];
+        if (cube.animationQueue.length > 0) {
+            var animationEvent;
+            if (cube.animationQueue[0].frame == ROTATION_FRAMES) {
+                animationEvent = cube.animationQueue.shift();
+                if (animationEvent == null) {
+                    return;
                 }
-                rotatingObject.rotate(animationEvent);
-                ++animationEvent.frame;
-
+            } else {
+                animationEvent = cube.animationQueue[0];
             }
+            cube.rotate(animationEvent);
+            ++animationEvent.frame;
+        } else {
+            scrambling = false;
         }
     }
     cube.init(scene);
-    view.init(scene);
     render();
 }
