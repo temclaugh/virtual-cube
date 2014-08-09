@@ -5,6 +5,7 @@ var scrambling = false;
 var PI = Math.PI;
 var STICKER_SIZE = .85;
 var ROTATION_FRAMES = 5;
+var CUBE_DISTANCE = 1.2;
 
 var COLORS = {
     "white": {index: 0, value: 0xffffff, rotation: [0, PI/2, 0], adjustment: {x: -.5, y: 0, z: 0}},

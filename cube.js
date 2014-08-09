@@ -1,3 +1,4 @@
+
 var cube = {
     cubies: null,
     stickers: [],
@@ -8,7 +9,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 3;
+        var n = 5;
         this.dim = n;
         this.scene = scene;
 
@@ -208,8 +209,8 @@ var cube = {
                 function getCoord (coord) {
                     if (coord <= 0) {
                         return 0;
-                    } else if (coord >= 2) {
-                        return 2;
+                    } else if (coord >= cube.dim - 1) {
+                        return cube.dim - 1;
                     } else {
                         return Math.round(coord);
                     }
@@ -221,10 +222,26 @@ var cube = {
             }
         }
     },
+    scramble: function () {
+        var turnCount = 10 * this.dim;
+        var turns = [TURNS.UP, TURNS.DOWN, TURNS.LEFT, TURNS.RIGHT, TURNS.BACK, TURNS.FRONT];
+        var prevTurn = -1;
+        var nextTurn = -1;
+        for (var i = 0; i < turnCount; ++i) {
+            while (prevTurn === nextTurn) {
+                nextTurn = Math.floor(Math.random() * 6);
+            }
+            prevTurn = nextTurn;
+            turn = turns[nextTurn];
+            depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
+            console.log(depth);
+            direction = [-1, 1][Math.floor(Math.random() * 2)];
+            cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
+        }    
+    },
 };
 
 window.onkeydown = function (event) {
-    console.log(playing, scrambling);
     if (scrambling) {
         return;
     }
@@ -345,16 +362,8 @@ window.onkeydown = function (event) {
             direction = -1;
             break;
         case charCodes.SPACE:
-            console.log("SCRAMBLING");
             scrambling = true;
-            for (var i = 0; i < 50; ++i) {
-                turn = [TURNS.UP, TURNS.DOWN, TURNS.LEFT, TURNS.RIGHT, TURNS.BACK, TURNS.FRONT][Math.floor(Math.random() * 6)];
-                console.log(turn);
-                depth = Math.floor(Math.random() * (cube.dim - 1));
-                depth = 1;
-                direction = [-1, 1][Math.floor(Math.random() * 2)];
-                cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
-            }    
+            cube.scramble();
             playing = true;
             return;
         default:
@@ -370,9 +379,10 @@ window.onload = function () {
     var scene = new THREE.Scene();
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(.95*window.innerWidth, .95*window.innerHeight);
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 3 * 1.2;
-    camera.position.y = 3 * 1.2;
+    cube.init(scene);
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+    camera.position.z = cube.dim * CUBE_DISTANCE;
+    camera.position.y = cube.dim * CUBE_DISTANCE;
     camera.lookAt({x: 0, y: 0, z: 0});
     document.body.appendChild(renderer.domElement);
 
@@ -395,6 +405,5 @@ window.onload = function () {
             scrambling = false;
         }
     }
-    cube.init(scene);
     render();
 }
