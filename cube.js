@@ -399,16 +399,19 @@ window.onkeydown = function (event) {
     cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
 }
 
-window.onload = function () {
 
+$(document).ready(function () {
     var scene = new THREE.Scene();
     var renderer = new THREE.WebGLRenderer();
     
+    $("td").click(function (x) {
+        console.log(x);
+    });
     // initialize DOM elements
     var cubeContainerHeight = document.getElementById('cube-container').clientHeight;
     var cubeContainerWidth = document.getElementById('cube-container').clientWidth;
-    var cubeDiv = document.getElementById('cube');
-    cubeWidth = cubeContainerHeight;
+    cubeWidth = 400;
+    cubeDiv = document.getElementById('cube');
     cubeDiv.style.height = cubeWidth + 'px';
     cubeDiv.style.width = cubeWidth + 'px';
     cubeDiv.style.bottom = (cubeContainerHeight - cubeWidth)/2 + "px";
@@ -458,4 +461,4 @@ window.onload = function () {
         });
     }
     render();
-}
+});

@@ -4,6 +4,9 @@
     <head>
         <title>Cube</title>
         <meta charset="utf-8">
+        <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css">
         <style>
 //            canvas {
@@ -21,47 +24,33 @@
         <script src="cube.js"></script>
     </head>
     <body>
-        <div class='header-container'>
-            <div class='header'><p>QQQQQQQQQQQQQQQQQQQQQQQ</p></div>  
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h1 class='text-center'>Virtual Cube</h1>
+            </div>
         </div>
-        <div class='cube-container' id='cube-container'>
-            <cube class='cube' id='cube'></div>
+        <div class="row">
+            <div class="col-md-1 col-md-offset-2">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr><td name='2'>2x2x2</td></tr>
+                        <tr><td name='3'>3x3x3</td></tr>
+                        <tr><td name='4'>4x4x4</td></tr>
+                        <tr><td name='5'>5x5x5</td></tr>
+                        <tr><td name='6'>6x6x6</td></tr>
+                        <tr><td name='7'>7x7x7</td></tr>
+                        <tr><td name='8'>8x8x8</td></tr>
+                        <tr><td name='9'>9x9x9</td></tr>
+                        <tr><td name='10'>10x10x10</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6" id="cube-container">
+                <div class="col-centered" id="cube"></div>
+            </div>
         </div>
-        <div class='cube-times-container'>cube-times</div>
-        <div class='cube-controls-container'>cube-controls</div>
-        <div class='cube-selection-container'>
-          <div class='cube-selection'>
-            <table>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-              <tr>
-                <td>1x1x1</td>
-              </tr>
-            </table>
-            
-          </div>
+        <div class="row">
+            <div class="col-md-2 col-md-offset-5 text-center">Press space to scramble.</div>
         </div>
-            </body>
+    </body>
     </html>
