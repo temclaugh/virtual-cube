@@ -4,7 +4,7 @@ var scrambling = false;
 
 var PI = Math.PI;
 var STICKER_SIZE = .85;
-var ROTATION_FRAMES = 5;
+var ROTATION_FRAMES = 6;
 var CUBE_DISTANCE = 1.8;
 
 var COLORS = {
@@ -16,7 +16,7 @@ var COLORS = {
     "red": {index: 5, value: 0xff0000, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: .5}},
 }
 
-TURNS = {
+var TURNS = {
     UP: new THREE.Vector3(0, 1, 0),
     DOWN: new THREE.Vector3(0, 1, 0),
     LEFT: new THREE.Vector3(1, 0, 0),
@@ -25,7 +25,7 @@ TURNS = {
     FRONT: new THREE.Vector3(0, 0, -1),
 }
 
-charCodes = {
+var charCodes = {
     E: 69, // left
     D: 68, // left
     I: 73, // right
@@ -54,3 +54,11 @@ charCodes = {
     SPACE: 32,
 }
 
+var OPPOSITES = {
+    'L': ['L', 'R'],
+    'R': ['L', 'R'],
+    'U': ['U', 'D'],
+    'D': ['U', 'D'],
+    'F': ['F', 'B'],
+    'B': ['F', 'B'],
+}

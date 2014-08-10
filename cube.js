@@ -9,7 +9,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 3;
+        var n = 5;
         this.dim = n;
         this.scene = scene;
 
@@ -225,17 +225,20 @@ var cube = {
     scramble: function () {
         var turnCount = 10 * this.dim;
         var turns = [TURNS.UP, TURNS.DOWN, TURNS.LEFT, TURNS.RIGHT, TURNS.BACK, TURNS.FRONT];
-        var prevTurn = -1;
-        var nextTurn = -1;
+        var faces = ['U', 'D', 'L', 'R', 'B', 'F'];
+        var prevRoll = -1;
+        var nextRoll = -1;
         for (var i = 0; i < turnCount; ++i) {
-            while (prevTurn === nextTurn) {
-                nextTurn = Math.floor(Math.random() * 6);
+            while (prevRoll === nextRoll) {
+                nextRoll = Math.floor(Math.random() * 6);
             }
-            prevTurn = nextTurn;
-            turn = turns[nextTurn];
-            depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
-            direction = [-1, 1][Math.floor(Math.random() * 2)];
-            cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
+            prevRoll = nextRoll;
+            var turn = turns[nextRoll];
+            var depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
+            var direction = [-1, 1][Math.floor(Math.random() * 2)];
+            var face = faces[nextRoll];
+            console.log(face, turn);
+            cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
         }    
     },
 };
@@ -244,7 +247,7 @@ window.onkeydown = function (event) {
     if (scrambling) {
         return;
     }
-    var turn, depth, direction;
+    var turn, depth, direction, face;
     switch (event.keyCode) {
         case charCodes.T:
         case charCodes.Y:
@@ -252,113 +255,135 @@ window.onkeydown = function (event) {
             frame = 1;
             depth = cube.dim;
             direction = 1;
+            face = 'L';
             break;
         case charCodes.P:
             turn = TURNS.FRONT;
             depth = cube.dim;
             direction = -1;
+            face = 'F';
             break;
         case charCodes.Q:
             turn = TURNS.BACK;
             depth = cube.dim;
             direction = 1;
+            face = 'B';
             break;
         case charCodes.B:
         case charCodes.N:
             turn = TURNS.RIGHT;
             depth = cube.dim;
             direction = -1;
+            face = 'R';
             break;
         case charCodes.A:
             turn = TURNS.UP;
             depth = cube.dim;
             direction = -1;
+            face = 'U';
             break;
         case charCodes.SEMI:
         case charCodes.SEMI_2:
             turn = TURNS.DOWN;
             depth = cube.dim;
             direction = 1;
+            face = 'D';
             break;
         case charCodes.E:
-            turn = TURNS.LEFT;
+            turn = TURNS.LEFT
             depth = 1;
             direction = 1;
+            face = 'L';
             break;
         case charCodes.D:
             turn = TURNS.LEFT;
             depth = 1;
             direction = -1;
+            face = 'L';
             break;
         case charCodes.I:
             turn = TURNS.RIGHT;
             depth = 1;
             direction = 1;
+            face = 'R';
             break;
         case charCodes.K:
             turn = TURNS.RIGHT;
             depth = 1;
             direction = -1;
+            face = 'R';
             break;
         case charCodes.J:
             turn = TURNS.UP;
             depth = 1;
             direction = 1;
+            face = 'U';
             break;
         case charCodes.F:
             turn = TURNS.UP;
             depth = 1;
             direction = -1;
+            face = 'U';
             break;
         case charCodes.G:
             turn = TURNS.FRONT;
             depth = 1;
             direction = 1;
+            face = 'F';
             break;
         case charCodes.H:
             turn = TURNS.FRONT;
             depth = 1;
             direction = -1;
+            face = 'F';
             break;
         case charCodes.S:
             turn = TURNS.DOWN;
             depth = 1;
             direction = -1;
+            face = 'D';
             break;
         case charCodes.L:
             turn = TURNS.DOWN;
             depth = 1;
             direction = 1;
+            face = 'D';
             break;
         case charCodes.W:
             turn = TURNS.BACK;
             depth = 1;
             direction = 1;
+            face = 'B';
             break;
         case charCodes.O:
             turn = TURNS.BACK;
             depth = 1;
             direction = -1;
+            face = 'B';
             break;
         case charCodes.U:
             turn = TURNS.RIGHT;
             depth = 2;
             direction = 1;
+            face = 'R';
             break;
         case charCodes.M:
             turn = TURNS.RIGHT;
             depth = 2;
             direction = -1;
+            face = 'R';
             break;
         case charCodes.R:
             turn = TURNS.LEFT;
             depth = 2;
             direction = 1;
+            face = 'L';
             break;
         case charCodes.V:
             turn = TURNS.LEFT;
             depth = 2;
             direction = -1;
+            face = 'L';
             break;
         case charCodes.SPACE:
             scrambling = true;
@@ -371,7 +396,7 @@ window.onkeydown = function (event) {
     if (!playing) {
         return;
     }
-    cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
+    cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
 }
 
 window.onload = function () {
@@ -400,24 +425,37 @@ window.onload = function () {
     cubeDiv.appendChild(renderer.domElement);
     renderer.domElement.height = cubeWidth;
 
+    var activeRotations = [];
     var render = function () {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
         if (cube.animationQueue.length > 0) {
-            var animationEvent;
-            if (cube.animationQueue[0].frame == ROTATION_FRAMES) {
-                animationEvent = cube.animationQueue.shift();
-                if (animationEvent == null) {
-                    return;
+            if (activeRotations.length == 0) {
+                activeRotations.push(cube.animationQueue[0]);
+                cube.animationQueue.shift();
+                if (cube.animationQueue.length > 0) {
+                    if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
+                        activeRotations.push(cube.animationQueue[0]);
+                        cube.animationQueue.shift();
+                    } 
                 }
-            } else {
-                animationEvent = cube.animationQueue[0];
+            } else if (activeRotations.length == 1) {
+                if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
+                    activeRotations.push(cube.animationQueue[0]);
+                    cube.animationQueue.shift();
+                }
             }
-            cube.rotate(animationEvent);
-            ++animationEvent.frame;
         } else {
             scrambling = false;
         }
+        for (var i = 0; i < activeRotations.length; ++i) {
+            cube.rotate(activeRotations[i]);
+            ++activeRotations[i].frame;
+            console.log(activeRotations[i].face);
+        }
+        activeRotations = activeRotations.filter(function (x) { 
+            return x.frame <= ROTATION_FRAMES; 
+        });
     }
     render();
 }
