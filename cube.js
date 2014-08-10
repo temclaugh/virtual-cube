@@ -1,21 +1,21 @@
-
+var renderer, scene, camera;
 var startTime;
 
 var playing = false;
 var scrambling = false;
 var waiting = false;
+var resetCanvas = false;
 
 var cube = {
-    cubies: null,
-    stickers: [],
-    faces: {left: [], right: [], down: [], up: [], back: [], front: []},
-    rotatingFace: null,
-    animationQueue: [],
-    frame: 0,
-    dim: null,
+    init: function (scene, dim) {
+        this.cubies =  null;
+        this.stickers =  [];
+        this.faces =  {left: [], right: [], down: [], up: [], back: [], front: []};
+        this.rotatingFace =  null;
+        this.animationQueue = [];
+        this.frame =  0;
 
-    init: function (scene) {
-        var n = 3;
+        var n = dim;
         this.dim = n;
         this.scene = scene;
 
@@ -246,6 +246,9 @@ var cube = {
             cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
         }    
     },
+    isSolved: function () {
+        return false;
+    }
 };
 
 window.onkeydown = function (event) {
@@ -401,13 +404,17 @@ window.onkeydown = function (event) {
         default:
             return;
     }
-    if (!playing && depth != cube.dim) {
+/*    if (!playing && depth != cube.dim) {
         return;
-    }
+    }*/
     cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
 }
 
 function runTimer() {
+    if (!playing) {
+        $("#game-info").text("");
+        return;
+    }
     currentMilliseconds = new Date() - startTime;
     secondsInt = Math.floor(currentMilliseconds/1000);
     secondsDecimal = currentMilliseconds - 1000*secondsInt;
@@ -416,6 +423,10 @@ function runTimer() {
 }
 
 function countDown(t) {
+    if (!waiting) {
+        $("#game-info").text("").css('color', 'white');
+        return;
+    }
     if (t == 0) {
         waiting = false;
         playing = true;
@@ -429,12 +440,65 @@ function countDown(t) {
 }
 
 $(document).ready(function () {
-    var scene = new THREE.Scene();
-    var renderer = new THREE.WebGLRenderer();
-    
     $("td").click(function (x) {
-        console.log(x);
+        var dim = parseInt(x.target.attributes.name.value);
+        if (cube.dim == dim) {
+            return;
+        }
+        playing = false;
+        waiting = false;
+        scrambling = false;
+        resetCanvas = true;
+        initCanvas(dim);
     });
+    initCanvas(3);
+    render(renderer, scene, camera);
+});
+
+var activeRotations = [];
+function render() {
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+    if (cube.animationQueue.length > 0) {
+        if (activeRotations.length == 0) {
+            activeRotations.push(cube.animationQueue[0]);
+            cube.animationQueue.shift();
+            if (cube.animationQueue.length > 0) {
+                if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
+                    activeRotations.push(cube.animationQueue[0]);
+                    cube.animationQueue.shift();
+                } 
+            }
+        } else if (activeRotations.length == 1) {
+            if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
+                activeRotations.push(cube.animationQueue[0]);
+                cube.animationQueue.shift();
+            }
+        }
+    } else if (scrambling) {
+        scrambling = false;
+        waiting = true;
+        $("#game-info").css('color', 'red');
+        countDown(INSPECTION_TIME);
+    }
+    if (activeRotations.length > 0) {
+        console.log(activeRotations);
+        for (var i = 0; i < activeRotations.length; ++i) {
+            console.log("rotating " + activeRotations[i].face);
+            cube.rotate(activeRotations[i]);
+            ++activeRotations[i].frame;
+        }
+        activeRotations = activeRotations.filter(function (x) { 
+            return x.frame <= ROTATION_FRAMES; 
+        });
+    }
+}
+
+function initCanvas(n) {
+    $("canvas").remove();
+    scene = new THREE.Scene();
+    renderer = new THREE.WebGLRenderer();
+    
     // initialize DOM elements
     var cubeContainerHeight = document.getElementById('cube-container').clientHeight;
     var cubeContainerWidth = document.getElementById('cube-container').clientWidth;
@@ -447,48 +511,13 @@ $(document).ready(function () {
     renderer.setSize(cubeWidth, cubeWidth);
 
     // initialize cube
-    cube.init(scene);
+    cube.init(scene, n);
     
-    var camera = new THREE.PerspectiveCamera(75, .45, .1, 1000); 
+    camera = new THREE.PerspectiveCamera(75, .45, .1, 1000); 
     camera.position.z = cube.dim * CUBE_DISTANCE;
     camera.position.y = cube.dim * CUBE_DISTANCE;
     camera.lookAt({x: 0, y: cube.dim, z: 0});
     cubeDiv.appendChild(renderer.domElement);
     renderer.domElement.height = cubeWidth;
 
-    var activeRotations = [];
-    var render = function () {
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
-        if (cube.animationQueue.length > 0) {
-            if (activeRotations.length == 0) {
-                activeRotations.push(cube.animationQueue[0]);
-                cube.animationQueue.shift();
-                if (cube.animationQueue.length > 0) {
-                    if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
-                        activeRotations.push(cube.animationQueue[0]);
-                        cube.animationQueue.shift();
-                    } 
-                }
-            } else if (activeRotations.length == 1) {
-                if (OPPOSITES[cube.animationQueue[0].face].indexOf(activeRotations[0].face) >= 0) {
-                    activeRotations.push(cube.animationQueue[0]);
-                    cube.animationQueue.shift();
-                }
-            }
-        } else if (scrambling) {
-            scrambling = false;
-            waiting = true;
-            $("#game-info").css('color', 'red');
-            countDown(INSPECTION_TIME);
-        }
-        for (var i = 0; i < activeRotations.length; ++i) {
-            cube.rotate(activeRotations[i]);
-            ++activeRotations[i].frame;
-        }
-        activeRotations = activeRotations.filter(function (x) { 
-            return x.frame <= ROTATION_FRAMES; 
-        });
-    }
-    render();
-});
+}
