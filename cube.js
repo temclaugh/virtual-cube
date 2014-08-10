@@ -9,7 +9,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 5;
+        var n = 3;
         this.dim = n;
         this.scene = scene;
 
@@ -234,7 +234,6 @@ var cube = {
             prevTurn = nextTurn;
             turn = turns[nextTurn];
             depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
-            console.log(depth);
             direction = [-1, 1][Math.floor(Math.random() * 2)];
             cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction});
         }    
@@ -376,15 +375,30 @@ window.onkeydown = function (event) {
 }
 
 window.onload = function () {
+
     var scene = new THREE.Scene();
     var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(.95*window.innerWidth, .95*window.innerHeight);
+    
+    // initialize DOM elements
+    var cubeContainerHeight = document.getElementById('cube-container').clientHeight;
+    var cubeContainerWidth = document.getElementById('cube-container').clientWidth;
+    var cubeDiv = document.getElementById('cube');
+    cubeWidth = cubeContainerHeight;
+    cubeDiv.style.height = cubeWidth + 'px';
+    cubeDiv.style.width = cubeWidth + 'px';
+    cubeDiv.style.bottom = (cubeContainerHeight - cubeWidth)/2 + "px";
+    cubeDiv.style.left = (cubeContainerWidth - cubeWidth)/2 + "px";
+    renderer.setSize(cubeWidth, cubeWidth);
+
+    // initialize cube
     cube.init(scene);
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+    
+    var camera = new THREE.PerspectiveCamera(75, .45, .1, 1000); 
     camera.position.z = cube.dim * CUBE_DISTANCE;
     camera.position.y = cube.dim * CUBE_DISTANCE;
-    camera.lookAt({x: 0, y: 0, z: 0});
-    document.body.appendChild(renderer.domElement);
+    camera.lookAt({x: 0, y: cube.dim, z: 0});
+    cubeDiv.appendChild(renderer.domElement);
+    renderer.domElement.height = cubeWidth;
 
     var render = function () {
         renderer.render(scene, camera);
