@@ -53,6 +53,7 @@ var charCodes = {
     SEMI: 59,
     SEMI_2: 186,
     SPACE: 32,
+    ESCAPE: 27,
 }
 
 var OPPOSITES = {

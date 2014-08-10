@@ -252,6 +252,7 @@ var cube = {
 };
 
 window.onkeydown = function (event) {
+    console.log(event.keyCode);
     if (scrambling) {
         return;
     }
@@ -401,6 +402,10 @@ window.onkeydown = function (event) {
             cube.scramble();
             $("#game-info").text("");
             return;
+        case charCodes.ESCAPE:
+            playing = false;
+            waiting = false;
+            initCanvas(cube.dim);
         default:
             return;
     }
@@ -445,6 +450,9 @@ $(document).ready(function () {
         if (cube.dim == dim) {
             return;
         }
+        if (activeRotations.length != 0) {
+            return;
+        }
         playing = false;
         waiting = false;
         scrambling = false;
@@ -482,9 +490,7 @@ function render() {
         countDown(INSPECTION_TIME);
     }
     if (activeRotations.length > 0) {
-        console.log(activeRotations);
         for (var i = 0; i < activeRotations.length; ++i) {
-            console.log("rotating " + activeRotations[i].face);
             cube.rotate(activeRotations[i]);
             ++activeRotations[i].frame;
         }
@@ -519,5 +525,6 @@ function initCanvas(n) {
     camera.lookAt({x: 0, y: cube.dim, z: 0});
     cubeDiv.appendChild(renderer.domElement);
     renderer.domElement.height = cubeWidth;
+    $("#game-info").text("Press space to scramble.");
 
 }
