@@ -252,7 +252,6 @@ var cube = {
 };
 
 window.onkeydown = function (event) {
-    console.log(event.keyCode);
     if (scrambling) {
         return;
     }
@@ -409,9 +408,9 @@ window.onkeydown = function (event) {
         default:
             return;
     }
-/*    if (!playing && depth != cube.dim) {
+    if (!playing && depth != cube.dim) {
         return;
-    }*/
+    }
     cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
 }
 
