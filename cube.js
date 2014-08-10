@@ -1,4 +1,10 @@
 
+var startTime;
+
+var playing = false;
+var scrambling = false;
+var waiting = false;
+
 var cube = {
     cubies: null,
     stickers: [],
@@ -9,7 +15,7 @@ var cube = {
     dim: null,
 
     init: function (scene) {
-        var n = 5;
+        var n = 3;
         this.dim = n;
         this.scene = scene;
 
@@ -237,7 +243,6 @@ var cube = {
             var depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
             var direction = [-1, 1][Math.floor(Math.random() * 2)];
             var face = faces[nextRoll];
-            console.log(face, turn);
             cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
         }    
     },
@@ -386,19 +391,42 @@ window.onkeydown = function (event) {
             face = 'L';
             break;
         case charCodes.SPACE:
+            if (playing || scrambling || waiting) {
+                return;
+            }
             scrambling = true;
             cube.scramble();
-            playing = true;
+            $("#game-info").text("");
             return;
         default:
             return;
     }
-    if (!playing) {
+    if (!playing && depth != cube.dim) {
         return;
     }
     cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
 }
 
+function runTimer() {
+    currentMilliseconds = new Date() - startTime;
+    secondsInt = Math.floor(currentMilliseconds/1000);
+    secondsDecimal = currentMilliseconds - 1000*secondsInt;
+    $("#game-info").text(String(secondsInt) + "." + String(secondsDecimal));
+    setTimeout(runTimer, 10);
+}
+
+function countDown(t) {
+    if (t == 0) {
+        waiting = false;
+        playing = true;
+        startTime = new Date();
+        $("#game-info").text("").css('color', 'white');
+        runTimer();
+        return;
+    }
+    $("#game-info").text(String(t));
+    setTimeout(function () { countDown(t-1) }, 1000);
+}
 
 $(document).ready(function () {
     var scene = new THREE.Scene();
@@ -448,13 +476,15 @@ $(document).ready(function () {
                     cube.animationQueue.shift();
                 }
             }
-        } else {
+        } else if (scrambling) {
             scrambling = false;
+            waiting = true;
+            $("#game-info").css('color', 'red');
+            countDown(INSPECTION_TIME);
         }
         for (var i = 0; i < activeRotations.length; ++i) {
             cube.rotate(activeRotations[i]);
             ++activeRotations[i].frame;
-            console.log(activeRotations[i].face);
         }
         activeRotations = activeRotations.filter(function (x) { 
             return x.frame <= ROTATION_FRAMES; 

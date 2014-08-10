@@ -1,6 +1,7 @@
 var playing = false;
 var scrambling = false;
 
+var INSPECTION_TIME = 5;
 
 var PI = Math.PI;
 var STICKER_SIZE = .85;
