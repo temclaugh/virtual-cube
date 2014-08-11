@@ -457,13 +457,11 @@ window.onkeydown = function (event) {
 
 function runTimer() {
     if (!playing) {
-        $("#game-info").color("white").text("Press space to scramble.");
+        $("#game-info").text("Press space to scramble.").css('color', 'white');
         return;
     }
-    currentMilliseconds = new Date() - startTime;
-    secondsInt = Math.floor(currentMilliseconds/1000);
-    secondsDecimal = currentMilliseconds - 1000*secondsInt;
-    $("#game-info").text(String(secondsInt) + "." + String(secondsDecimal));
+    var currentSeconds = (Math.floor((new Date() - startTime) / 10) / 100) + '';
+    $("#game-info").text(currentSeconds);
     setTimeout(runTimer, 10);
 }
 
@@ -544,9 +542,12 @@ function render() {
             return x.frame <= ROTATION_FRAMES; 
         });
         // check if solved
-        if (prevLength > activeRotations.length && cube.isSolved()) {
+        if (prevLength > activeRotations.length && playing && cube.isSolved()) {
             playing = false;
-            console.log($("#game-info").text());
+            var solveTime = $("#game-info").text();
+            var html = '<tr><td>'  + solveTime + '</td></tr>';
+            $("#solve-times").find('tbody').append(html);
+            console.log(html);
         }
     }
 }
