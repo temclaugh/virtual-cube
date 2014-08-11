@@ -460,7 +460,7 @@ function runTimer() {
         $("#game-info").text("Press space to scramble.").css('color', 'white');
         return;
     }
-    var currentSeconds = (Math.floor((new Date() - startTime) / 10) / 100) + '';
+    var currentSeconds = (Math.floor((new Date() - startTime) / 10) / 100).toFixed(2) + '';
     $("#game-info").text(currentSeconds);
     setTimeout(runTimer, 10);
 }
