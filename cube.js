@@ -33,6 +33,7 @@ var cube = {
                 sticker.rotation.x = COLORS[color].rotation[0];
                 sticker.rotation.y = COLORS[color].rotation[1];
                 sticker.rotation.z = COLORS[color].rotation[2];
+                sticker["colorIndex"] = COLORS[color].index;
                 stickers.push(sticker);
                 scene.add(sticker);
                 cube.stickers.push(sticker);
@@ -247,7 +248,47 @@ var cube = {
         }    
     },
     isSolved: function () {
-        return false;
+        var faces = [[], [], [], [], [], []];
+        for (var i = 0; i < cube.stickers.length; ++i) {
+            var sticker = cube.stickers[i];
+            var xPosition = Math.round(sticker.position.x * 10)/10;
+            var yPosition = Math.round(sticker.position.y * 10)/10;
+            var zPosition = Math.round(sticker.position.z * 10)/10;
+            var colorIndex = sticker.colorIndex;
+            var bound = cube.dim / 2;
+            if (xPosition == -1 * bound) {
+                faces[0].push(colorIndex);
+            } else if (xPosition == bound) {
+                faces[1].push(colorIndex); 
+            } else if (yPosition == -1 * bound) {
+                faces[2].push(colorIndex); 
+            } else if (yPosition == bound) {
+                faces[3].push(colorIndex); 
+            } else if (zPosition == -1 * bound) {
+                faces[4].push(colorIndex); 
+            } else if (zPosition == bound) {
+                faces[5].push(colorIndex); 
+            }
+        
+        }
+        function isUniform(lst) {
+            if (lst.length == 0) {
+                return true;
+            }
+            var val = lst[0];
+            for (var i = 1; i < lst.length; ++i) {
+                if (lst[i] != val) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        for (var i = 0; i < 6; ++i) {
+            if (!isUniform(faces[i])) {
+                return false;
+            }
+        } 
+        return true;
     }
 };
 
@@ -416,7 +457,7 @@ window.onkeydown = function (event) {
 
 function runTimer() {
     if (!playing) {
-        $("#game-info").text("");
+        $("#game-info").color("white").text("Press space to scramble.");
         return;
     }
     currentMilliseconds = new Date() - startTime;
@@ -463,9 +504,12 @@ $(document).ready(function () {
 });
 
 var activeRotations = [];
+
 function render() {
     renderer.render(scene, camera);
     requestAnimationFrame(render);
+
+    // collect rotations
     if (cube.animationQueue.length > 0) {
         if (activeRotations.length == 0) {
             activeRotations.push(cube.animationQueue[0]);
@@ -488,14 +532,22 @@ function render() {
         $("#game-info").css('color', 'red');
         countDown(INSPECTION_TIME);
     }
+
+    // render rotations
     if (activeRotations.length > 0) {
         for (var i = 0; i < activeRotations.length; ++i) {
             cube.rotate(activeRotations[i]);
             ++activeRotations[i].frame;
         }
+        var prevLength = activeRotations.length;
         activeRotations = activeRotations.filter(function (x) { 
             return x.frame <= ROTATION_FRAMES; 
         });
+        // check if solved
+        if (prevLength > activeRotations.length && cube.isSolved()) {
+            playing = false;
+            console.log($("#game-info").text());
+        }
     }
 }
 
