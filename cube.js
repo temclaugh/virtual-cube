@@ -6,6 +6,9 @@ var scrambling = false;
 var waiting = false;
 var resetCanvas = false;
 
+var currentSolve;
+var solves = [];
+
 var cube = {
     init: function (scene, dim) {
         this.cubies =  null;
@@ -26,7 +29,6 @@ var cube = {
             function newSticker (color) {
                 var frontColor = COLORS[color].value;
                 var backColor = COLORS[color].darkValue;
-                console.log(backColor);
                 var frontGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
                 var backGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
                 backGeometry.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
@@ -255,7 +257,10 @@ var cube = {
             var depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
             var direction = [-1, 1][Math.floor(Math.random() * 2)];
             var face = faces[nextRoll];
-            cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
+            var move = {frame: 1, turn: turn, depth: depth, direction: direction, face: face};
+            var time = new Date();
+            currentSolve.moves.push({move: move, time: time});
+            cube.animationQueue.push(move);
         }    
     },
     isSolved: function () {
@@ -299,9 +304,19 @@ var cube = {
                 return false;
             }
         } 
+        solves.push(currentSolve);
         return true;
     }
 };
+
+var solve = function (n) {
+    this.dim = n;
+    this.moves = [];
+}
+
+function replay (n) {
+    console.log(solves[n]);
+}
 
 window.onkeydown = function (event) {
     if (scrambling) {
@@ -463,7 +478,10 @@ window.onkeydown = function (event) {
     if (!playing && depth != cube.dim) {
         return;
     }
-    cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
+    var move = {frame: 1, turn: turn, depth: depth, direction: direction, face: face};
+    var time = new Date(); 
+    currentSolve.moves.push({move: move, time: time});
+    cube.animationQueue.push(move);
 }
 
 function runTimer() {
@@ -506,9 +524,11 @@ $(document).ready(function () {
         waiting = false;
         scrambling = false;
         resetCanvas = true;
-        initCanvas(dim);
+        initCanvas(dim)
+        currentSolve = new solve(dim);
     });
     initCanvas(3);
+    currentSolve = new solve(3);
     render(renderer, scene, camera);
 });
 
@@ -556,9 +576,17 @@ function render() {
         if (prevLength > activeRotations.length && playing && cube.isSolved()) {
             playing = false;
             var solveTime = $("#game-info").text();
-            var html = '<tr><td>'  + solveTime + '</td></tr>';
+            var solveIndex = solves.length - 1;
+            var solveClass = 'solve-' + solveIndex;
+            var solveClassSelector = '.' + solveClass;
+            var html = '<tr><td class="' + solveClass + '">' + solveTime + '</td></tr>';
             $("#solve-times").find('tbody').append(html);
-            console.log(html);
+            $(solveClassSelector).click(function () { replay(solveIndex); });
+            $(solveClassSelector).hover(function () {
+                $(this).text("Replay");      
+            }, function () {
+                $(this).text('' + solveTime); 
+            });
         }
     }
 }

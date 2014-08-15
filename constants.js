@@ -9,12 +9,12 @@ var ROTATION_FRAMES = 6;
 var CUBE_DISTANCE = 1.4;
 
 var COLORS = {
-    "white": {index: 0, value: 0xffffff, darkValue: 0xd9d9d9, rotation: [0, -PI/2, 0], adjustment: {x: -.5, y: 0, z: 0}},
-    "yellow": {index: 1, value: 0xffff00, darkValue: 0xb3b300, rotation: [0, PI/2, 0], adjustment: {x: .5, y: 0, z: 0}},
+    "white": {index: 0, value: 0xffffff, darkValue: 0xe6e6e6, rotation: [0, -PI/2, 0], adjustment: {x: -.5, y: 0, z: 0}},
+    "yellow": {index: 1, value: 0xffff00, darkValue: 0xcccc00, rotation: [0, PI/2, 0], adjustment: {x: .5, y: 0, z: 0}},
     "green": {index: 2, value: 0x00ff00, darkValue: 0x00cc00, rotation: [PI/2, 0, 0], adjustment: {x: 0, y: -.5, z: 0}},
-    "blue": {index: 3, value: 0x0000ff, darkValue: 0x0000b3, rotation: [-PI/2, 0, 0], adjustment: {x: 0, y: .5, z: 0}},
-    "orange": {index: 4, value: 0xAD00AD, darkValue: 0xFA00FA, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: -.5}},
-    "red": {index: 5, value: 0xff0000, darkValue: 0xb30000, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: .5}},
+    "blue": {index: 3, value: 0x0000ff, darkValue: 0x0000cc, rotation: [-PI/2, 0, 0], adjustment: {x: 0, y: .5, z: 0}},
+    "orange": {index: 4, value: 0xc700c7, darkValue: 0xfa00fa, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: -.5}},
+    "red": {index: 5, value: 0xff0000, darkValue: 0xcc0000, rotation: [0, 0, PI/2], adjustment: {x: 0, y: 0, z: .5}},
 }
 
 var TURNS = {
