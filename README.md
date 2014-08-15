@@ -1,1 +1,1 @@
-![alt text]("Screen Shot 2014-08-15 at 12.55.55 PM.png")
+![alt text](https://github.com/temclaugh/virtual-cube/blob/gh-pages/Screen%20Shot%202014-08-15%20at%2012.55.55%20PM.png)
