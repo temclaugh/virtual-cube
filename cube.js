@@ -24,9 +24,20 @@ var cube = {
             var stickers = [];
 
             function newSticker (color) {
-                var colorValue = COLORS[color].value;
-                var mesh = new THREE.MeshBasicMaterial({color: colorValue, side: THREE.DoubleSide});
-                var sticker = new THREE.Mesh(new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE), mesh);
+                var frontColor = COLORS[color].value;
+                var backColor = COLORS[color].darkValue;
+                console.log(backColor);
+                var frontGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
+                var backGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
+                backGeometry.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
+                var frontMaterial = new THREE.MeshBasicMaterial({color: frontColor});
+                var backMaterial = new THREE.MeshBasicMaterial({color: backColor});
+                var frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
+                var backMesh = new THREE.Mesh(backGeometry, backMaterial);
+                //var sticker = new THREE.Mesh(new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE), mesh);
+                var sticker = new THREE.Object3D();
+                sticker.add(frontMesh);
+                sticker.add(backMesh);
                 sticker.position.x = (x + COLORS[color].adjustment.x) - (cube.dim - 1)/2;
                 sticker.position.y = (y + COLORS[color].adjustment.y) - (cube.dim - 1)/2;
                 sticker.position.z = (z + COLORS[color].adjustment.z) - (cube.dim - 1)/2;
@@ -571,10 +582,10 @@ function initCanvas(n) {
     // initialize cube
     cube.init(scene, n);
     
-    camera = new THREE.PerspectiveCamera(75, .45, .1, 1000); 
+    camera = new THREE.PerspectiveCamera(50, 1, .1, 1000); 
     camera.position.z = cube.dim * CUBE_DISTANCE;
     camera.position.y = cube.dim * CUBE_DISTANCE;
-    camera.lookAt({x: 0, y: cube.dim, z: 0});
+    camera.lookAt({x: 0, y: 0, z: 0});
     cubeDiv.appendChild(renderer.domElement);
     renderer.domElement.height = cubeWidth;
     $("#game-info").text("Press space to scramble.");
