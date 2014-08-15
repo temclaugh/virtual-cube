@@ -1,9 +1,11 @@
 var renderer, scene, camera;
 var startTime;
 
+// states
 var playing = false;
 var scrambling = false;
 var waiting = false;
+var replaying = false;
 var resetCanvas = false;
 
 var currentSolve;
@@ -304,7 +306,6 @@ var cube = {
                 return false;
             }
         } 
-        console.log(faces);
         solves.push(currentSolve);
         return true;
     }
@@ -315,12 +316,25 @@ var solve = function (n) {
     this.moves = [];
 }
 
-function replay (n) {
-    console.log(solves[n]);
+function replay(n) {
+    replaying = true;
+    var solve = solves[n];
+    var moves = solve.moves;
+    var earliestTime = moves[0].time;
+    for (var i = 0; i < moves.length; ++i) {
+        var delay = moves[i].time - earliestTime; 
+        moves[i].move.frame = 1;
+        var j = i + '';
+       // setTimeout(function () {
+       //     j = parseInt(j);
+       //     console.log(j);
+            cube.animationQueue.push(moves[i].move);
+       //}, delay);
+    }
 }
 
 window.onkeydown = function (event) {
-    if (scrambling) {
+    if (scrambling || replaying) {
         return;
     }
     var turn, depth, direction, face;
