@@ -288,8 +288,8 @@ var cube = {
         
         }
         function isUniform(lst) {
-            if (lst.length == 0) {
-                return true;
+            if (lst.length != cube.dim * cube.dim) {
+                return false;
             }
             var val = lst[0];
             for (var i = 1; i < lst.length; ++i) {
@@ -304,6 +304,7 @@ var cube = {
                 return false;
             }
         } 
+        console.log(faces);
         solves.push(currentSolve);
         return true;
     }
