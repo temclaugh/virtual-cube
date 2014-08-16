@@ -1,10 +1,15 @@
 var renderer, scene, camera;
 var startTime;
 
+// states
 var playing = false;
 var scrambling = false;
 var waiting = false;
+var replaying = false;
 var resetCanvas = false;
+
+var currentSolve;
+var solves = [];
 
 var cube = {
     init: function (scene, dim) {
@@ -26,7 +31,6 @@ var cube = {
             function newSticker (color) {
                 var frontColor = COLORS[color].value;
                 var backColor = COLORS[color].darkValue;
-                console.log(backColor);
                 var frontGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
                 var backGeometry = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
                 backGeometry.applyMatrix(new THREE.Matrix4().makeRotationY(Math.PI));
@@ -255,7 +259,10 @@ var cube = {
             var depth = Math.floor(Math.random() * (this.dim - 1)) + 1;
             var direction = [-1, 1][Math.floor(Math.random() * 2)];
             var face = faces[nextRoll];
-            cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
+            var move = {frame: 1, turn: turn, depth: depth, direction: direction, face: face};
+            var time = new Date();
+            currentSolve.moves.push({move: move, time: time});
+            cube.animationQueue.push(move);
         }    
     },
     isSolved: function () {
@@ -283,8 +290,8 @@ var cube = {
         
         }
         function isUniform(lst) {
-            if (lst.length == 0) {
-                return true;
+            if (lst.length != cube.dim * cube.dim) {
+                return false;
             }
             var val = lst[0];
             for (var i = 1; i < lst.length; ++i) {
@@ -299,12 +306,41 @@ var cube = {
                 return false;
             }
         } 
+        solves.push(currentSolve);
         return true;
     }
 };
 
+var solve = function (n) {
+    this.dim = n;
+    this.moves = [];
+}
+
+function replay(n) {
+    replaying = true;
+    $('#game-info').text('Replay').css('color', 'red');
+    var solve = solves[n];
+    var moves = solve.moves;
+    var earliestTime = moves[0].time;
+    var replayMoves = function (moves, prevTime) {
+        if (moves.length == 0) {
+            $('#game-info').text('Press space to scramble.').css('color', 'white');
+            replaying = false;
+            return;
+        }
+        moves[0].move.frame = 1;
+        cube.animationQueue.push(moves[0].move);
+        var delay = moves[0].time - prevTime;
+        setTimeout(function () {
+            replayMoves(moves.slice(1), moves[0].time);
+        }, delay);
+
+    }
+    replayMoves(moves, 0);
+}
+
 window.onkeydown = function (event) {
-    if (scrambling) {
+    if (scrambling || replaying) {
         return;
     }
     var turn, depth, direction, face;
@@ -463,7 +499,10 @@ window.onkeydown = function (event) {
     if (!playing && depth != cube.dim) {
         return;
     }
-    cube.animationQueue.push({frame: 1, turn: turn, depth: depth, direction: direction, face: face});
+    var move = {frame: 1, turn: turn, depth: depth, direction: direction, face: face};
+    var time = new Date(); 
+    currentSolve.moves.push({move: move, time: time});
+    cube.animationQueue.push(move);
 }
 
 function runTimer() {
@@ -506,9 +545,11 @@ $(document).ready(function () {
         waiting = false;
         scrambling = false;
         resetCanvas = true;
-        initCanvas(dim);
+        initCanvas(dim)
+        currentSolve = new solve(dim);
     });
     initCanvas(3);
+    currentSolve = new solve(3);
     render(renderer, scene, camera);
 });
 
@@ -556,9 +597,17 @@ function render() {
         if (prevLength > activeRotations.length && playing && cube.isSolved()) {
             playing = false;
             var solveTime = $("#game-info").text();
-            var html = '<tr><td>'  + solveTime + '</td></tr>';
+            var solveIndex = solves.length - 1;
+            var solveClass = 'solve-' + solveIndex;
+            var solveClassSelector = '.' + solveClass;
+            var html = '<tr><td class="' + solveClass + '">' + solveTime + '</td></tr>';
             $("#solve-times").find('tbody').append(html);
-            console.log(html);
+            $(solveClassSelector).click(function () { replay(solveIndex); });
+            $(solveClassSelector).hover(function () {
+                $(this).text("Replay");      
+            }, function () {
+                $(this).text('' + solveTime); 
+            });
         }
     }
 }
