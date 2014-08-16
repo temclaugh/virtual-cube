@@ -318,19 +318,25 @@ var solve = function (n) {
 
 function replay(n) {
     replaying = true;
+    $('#game-info').text('Replay').css('color', 'red');
     var solve = solves[n];
     var moves = solve.moves;
     var earliestTime = moves[0].time;
-    for (var i = 0; i < moves.length; ++i) {
-        var delay = moves[i].time - earliestTime; 
-        moves[i].move.frame = 1;
-        var j = i + '';
-       // setTimeout(function () {
-       //     j = parseInt(j);
-       //     console.log(j);
-            cube.animationQueue.push(moves[i].move);
-       //}, delay);
+    var replayMoves = function (moves, prevTime) {
+        if (moves.length == 0) {
+            $('#game-info').text('Press space to scramble.').css('color', 'white');
+            replaying = false;
+            return;
+        }
+        moves[0].move.frame = 1;
+        cube.animationQueue.push(moves[0].move);
+        var delay = moves[0].time - prevTime;
+        setTimeout(function () {
+            replayMoves(moves.slice(1), moves[0].time);
+        }, delay);
+
     }
+    replayMoves(moves, 0);
 }
 
 window.onkeydown = function (event) {
