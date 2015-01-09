@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"></meta>
+  <title>Virtual Cube mockup</title>
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+  <script src="jquery-2.1.1.min.js"></script>
+  <script src="three.min.js"></script>
+  <script src="constants.js"></script>
+  <script src="cube.js"></script>
+  <style>
+/*
+.three {
+  background-color: #b0c4de;
+}
+*/
+.colored {
+  background-color: #b0c4de;
+}
+
+.center {
+  text-align: center;
+}
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <div class="row">
+    <h1>Virtual Cube</h1>
+  </div>
+  <div class="row">
+     <div class="two columns">
+       <div class="row"><button>2x2x2</button></div>
+       <div class="row"><button class="button-primary">3x3x3</button></div>
+       <div class="row"><button>4x4x4</button></div>
+       <div class="row"><button>5x5x5</button></div>
+       <div class="row"><button>6x6x6</button></div>
+       <div class="row"><button>7x7x7</button></div>
+       <div class="row"><button>8x8x8</button></div>
+       <div class="row"><button>9x9x9</button></div>
+     </div>
+     <div class="eight columns">
+       <div class="row colored" id="cube-container">
+         <div id="cube"></div>
+       </div>
+       <div class="row center">
+         <p>Press space to scramble</p>
+       </div>
+     </div>
+     <div class="two columns" id="times">
+       <div class="row"><button>20.21</button></div>
+       <div class="row"><button>1:20.21</button></div>
+     </div>
+   </div>
+</div>
+</body>
+
+</html>
