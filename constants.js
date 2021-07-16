@@ -6,7 +6,7 @@ var INSPECTION_TIME = 5;
 var PI = Math.PI;
 var STICKER_SIZE = .85;
 var ROTATION_FRAMES = 6;
-var CUBE_DISTANCE = 1.4;
+var CUBE_DISTANCE = 2.5;
 
 var COLORS = {
     "white": {index: 0, value: 0xffffff, darkValue: 0xe6e6e6, rotation: [0, -PI/2, 0], adjustment: {x: -.5, y: 0, z: 0}},
