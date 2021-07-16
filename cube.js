@@ -631,10 +631,11 @@ function initCanvas(n) {
     // initialize cube
     cube.init(scene, n);
     
-    camera = new THREE.PerspectiveCamera(50, 1, .1, 1000); 
+    camera = new THREE.PerspectiveCamera(60, .5, 1, 1000);
     camera.position.z = cube.dim * CUBE_DISTANCE;
     camera.position.y = cube.dim * CUBE_DISTANCE;
     camera.lookAt({x: 0, y: 0, z: 0});
+    camera.lookAt({x: 0, y: cube.dim / 2, z: -cube.dim});
     cubeDiv.appendChild(renderer.domElement);
     renderer.domElement.height = cubeWidth;
     $("#game-info").text("Press space to scramble.");
